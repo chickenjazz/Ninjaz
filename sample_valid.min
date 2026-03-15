@@ -1,0 +1,6 @@
+/* sample valid program */
+var a;
+var b;
+input a;
+b = a * 3 + 2;
+output b;
