@@ -1,0 +1,51 @@
+# Ninjaz Compiler / Interpreter
+
+## Description
+The Ninjaz Compiler is a custom miniature compiler and interpreter designed for a simple integer-based, C-like language. It performs full compilation phases including lexical analysis (tokenization), syntax analysis (parsing into an Abstract Syntax Tree), semantic analysis (declaration-before-use checking), and execution (interpreting the syntax tree). It comes with a CLI as well as a GUI environment (Ninjaz IDE).
+
+## Contributors
+- Rayan Chuayap
+- Justin Manuzon
+- Gabrielle San Diego
+- Josephine Santander
+
+## Files
+- `ninjaz_compiler.py`          -> Actual compiler backend and CLI
+- `ninjaz_compiler_gui.py`      -> Ninjaz IDE front-end graphical interface
+- `sample_valid.min`            -> Sample valid input program
+- `sample_invalid.min`          -> Sample invalid input program
+
+## How to Run
+
+1. Open your terminal or command prompt.
+2. Run the compiler against a specific file:
+   ```bash
+   python ninjaz_compiler.py sample_valid.min
+   ```
+
+### Other Commands
+- **Interactive Demo**: `python ninjaz_compiler.py --demo`
+- **REPL (Read-Eval-Print Loop)**: `python ninjaz_compiler.py --repl`
+- **Syntax & Semantic Check Only**: `python ninjaz_compiler.py sample_valid.min --check-only`
+- **Launch GUI (Ninjaz IDE)**: `python ninjaz_compiler_gui.py`
+
+## Features & Implementation Phases
+- **Lexical Analysis**: Tokenizes the raw source code.
+- **Syntax Analysis**: Parses the tokens into a structured Abstract Syntax Tree (AST).
+- **Semantic Analysis**: Ensures semantic validity (e.g., verifying variables are declared before they are used).
+- **Execution**: Interprets and runs the AST directly.
+
+## Language Syntax Rules
+- Every statement must end with a semicolon `;`.
+- Variables must be declared using `var <name>;` before use.
+- Use `input <name>;` to receive integer input.
+- Use `output <name>;` to print results.
+- Arithmetic expressions support `+`, `-`, `*`, `/`, and parentheses `()`.
+
+### Example
+```min
+var x;
+input x;
+x = 3 + 4 * (2 - 1);
+output x;
+```
