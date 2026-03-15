@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Mini compiler / interpreter for a simple integer-based language.
+Ninjaz compiler / interpreter for a simple integer-based language.
 
 Language rules implemented from the project specification:
 - Statements end with semicolons.
@@ -19,9 +19,9 @@ Pipeline:
 4. Interpretation / execution
 
 Usage:
-    python mini_compiler.py program.txt
-    python mini_compiler.py --demo
-    python mini_compiler.py --repl
+    python ninjaz_compiler.py program.txt
+    python ninjaz_compiler.py --demo
+    python ninjaz_compiler.py --repl
 """
 
 from __future__ import annotations
@@ -36,23 +36,23 @@ import sys
 # Errors
 # =========================
 
-class MiniLangError(Exception):
+class NinjazError(Exception):
     """Base class for language errors."""
 
 
-class LexicalError(MiniLangError):
+class LexicalError(NinjazError):
     pass
 
 
-class ParseError(MiniLangError):
+class ParseError(NinjazError):
     pass
 
 
-class SemanticError(MiniLangError):
+class SemanticError(NinjazError):
     pass
 
 
-class RuntimeLangError(MiniLangError):
+class RuntimeLangError(NinjazError):
     pass
 
 
@@ -668,7 +668,7 @@ output y;
 
 
 def repl() -> None:
-    print("Mini Language REPL")
+    print("Ninjaz Language REPL")
     print("Enter your program. Type END on its own line to compile. Type EXIT to quit.")
     while True:
         lines = []
@@ -682,15 +682,15 @@ def repl() -> None:
         source = '\n'.join(lines)
         try:
             compile_source(source)
-        except MiniLangError as exc:
+        except NinjazError as exc:
             print(f"\nERROR: {exc}\n")
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Mini compiler / interpreter for the project specification.")
+    ap = argparse.ArgumentParser(description="Ninjaz compiler / interpreter for the project specification.")
     ap.add_argument('file', nargs='?', help='Path to the source program file.')
     ap.add_argument('--demo', action='store_true', help='Run the built-in demo program.')
-    ap.add_argument('--repl', action='store_true', help='Start the mini-language REPL.')
+    ap.add_argument('--repl', action='store_true', help='Start the Ninjaz-language REPL.')
     ap.add_argument('--no-tokens', action='store_true', help='Do not print the token list.')
     ap.add_argument('--no-ast', action='store_true', help='Do not print the syntax tree.')
     ap.add_argument('--check-only', action='store_true', help='Only analyze; do not execute.')
@@ -718,7 +718,7 @@ def main() -> int:
         )
         return 0
 
-    except MiniLangError as exc:
+    except NinjazError as exc:
         print(f"ERROR: {exc}")
         return 1
     except FileNotFoundError:
