@@ -1,19 +1,19 @@
-Mini Compiler / Interpreter
+Ninjaz Compiler / Interpreter
 
 Files:
-- mini_compiler.py          -> actual program
+- ninjaz_compiler.py          -> actual program
 - sample_valid.min          -> sample valid input program
 - sample_invalid.min        -> sample invalid input program
 
 How to run:
 1. Open terminal / command prompt.
 2. Run:
-   python mini_compiler.py sample_valid.min
+   python ninjaz_compiler.py sample_valid.min
 
 Other commands:
-- python mini_compiler.py --demo
-- python mini_compiler.py --repl
-- python mini_compiler.py sample_valid.min --check-only
+- python ninjaz_compiler.py --demo
+- python ninjaz_compiler.py --repl
+- python ninjaz_compiler.py sample_valid.min --check-only
 
 What it does:
 - Lexical analysis (tokenization)

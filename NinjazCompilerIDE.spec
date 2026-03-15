@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['mini_compiler_gui.py'],
+    ['ninjaz_compiler_gui.py'],
     pathex=[],
     binaries=[],
-    datas=[('mini_compiler.py', '.')],
+    datas=[('ninjaz_compiler.py', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='MiniCompilerIDE',
+    name='NinjazCompilerIDE',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Mini Compiler GUI — tkinter front-end for mini_compiler.py
-Run with:  python mini_compiler_gui.py
-Build exe: pyinstaller --onefile --windowed mini_compiler_gui.py
+Ninjaz Compiler GUI — tkinter front-end for ninjaz_compiler.py
+Run with:  python ninjaz_compiler_gui.py
+Build exe: pyinstaller --onefile --windowed ninjaz_compiler_gui.py
 """
 
 import os
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
 
-from mini_compiler import (
+from ninjaz_compiler import (
     Lexer, Parser, SemanticAnalyzer, Interpreter,
-    MiniLangError, ast_to_lines,
+    NinjazError, ast_to_lines,
 )
 
 # ── Colour palette ─────────────────────────────────────────────────────────────
