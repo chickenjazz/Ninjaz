@@ -470,10 +470,12 @@ class SemanticAnalyzer:
         left_type  = self.analyze(node.left)
         right_type = self.analyze(node.right)
         if node.op == '+':
-            # '+' supports int+int (addition) and any mix with str (concatenation)
-            if left_type == 'str' or right_type == 'str':
-                return 'str'
-            return 'int'
+            if left_type != right_type:
+                raise SemanticError(
+                    f"Type mismatch: cannot use '+' between a '{left_type}' and a '{right_type}'. "
+                    f"Both operands must be the same type (both 'int' for addition, or both 'str' for concatenation)."
+                )
+            return left_type   # 'int' + 'int' -> 'int', 'str' + 'str' -> 'str'
         else:
             # -, *, / only valid for integers
             if left_type == 'str' or right_type == 'str':
@@ -556,9 +558,14 @@ class Interpreter:
     def visit_BinOp(self, node: BinOp) -> Union[int, str]:
         left = self.execute(node.left)
         right = self.execute(node.right)
-        # String concatenation
+        # String concatenation (str + str only)
+        if node.op == '+' and isinstance(left, str) and isinstance(right, str):
+            return left + right
+        # Mixed str+int with + is a type error (should have been caught by semantic analysis)
         if node.op == '+' and (isinstance(left, str) or isinstance(right, str)):
-            return str(left) + str(right)
+            raise RuntimeLangError(
+                f"Type mismatch: cannot use '+' between a string and an integer."
+            )
         # Arithmetic (integers only)
         if isinstance(left, str) or isinstance(right, str):
             raise RuntimeLangError(
