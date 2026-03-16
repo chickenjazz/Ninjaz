@@ -71,6 +71,25 @@ greeting = "Hello, " + name;
 output greeting;
 """
 
+SAMPLE_CAST = """\
+/* Type conversion: combine an int score with a string label */
+var score;
+string label;
+label = "Your score: ";
+input score;
+output label + int2str(score);
+"""
+
+SAMPLE_INT_CAST = """\
+/* Type conversion: parse a string input as an integer, then do math */
+string raw;
+var n;
+var result;
+input raw;
+n = str2int(raw);
+result = n * 2 + 10;
+output result;
+"""
 
 # ── Helper: scrollable Text widget ────────────────────────────────────────────
 def make_textbox(parent, **kw):
@@ -139,11 +158,13 @@ class App(tk.Tk):
         # Sample dropdown
         self._svar = tk.StringVar(value="Show Samples")
         self._samples = {
-            "Show Samples":           None,
-            "✅  Valid (A * 3 + 2)":  SAMPLE_VALID,
-            "➕  Arithmetic (X+Y)*Z": SAMPLE_ARITH,
-            "🔤  String greeting":    SAMPLE_STRING,
-            "❌  Invalid (undecl.)":  SAMPLE_INVALID,
+            "Show Samples":                    None,
+            "✅  Valid (A * 3 + 2)":           SAMPLE_VALID,
+            "➕  Arithmetic (X+Y)*Z":          SAMPLE_ARITH,
+            "🔤  String greeting":             SAMPLE_STRING,
+            "🔄  int2str() — int to string":    SAMPLE_CAST,
+            "🔄  str2int() — string to int":    SAMPLE_INT_CAST,
+            "❌  Invalid (undecl.)":           SAMPLE_INVALID,
         }
         om = tk.OptionMenu(hdr, self._svar, *self._samples,
                            command=self._on_sample)
@@ -341,6 +362,7 @@ class App(tk.Tk):
     def _show_tokens(self, tokens):
         TYPE_TAG = {
             "VAR": "kw", "INPUT": "kw", "OUTPUT": "kw", "STRING_TYPE": "kw",
+            "INT_CAST": "kw", "STR_CAST": "kw",
             "NUMBER": "num",
             "STRING_LITERAL": "str",
             "IDENTIFIER": "id",

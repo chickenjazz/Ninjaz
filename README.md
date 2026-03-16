@@ -1,7 +1,7 @@
 # Ninjaz Compiler / Interpreter
 
 ## Description
-The Ninjaz Compiler is a custom miniature compiler and interpreter designed for a simple integer-based, C-like language. It performs full compilation phases including lexical analysis (tokenization), syntax analysis (parsing into an Abstract Syntax Tree), semantic analysis (declaration-before-use checking), and execution (interpreting the syntax tree). It comes with a CLI as well as a GUI environment (Ninjaz IDE).
+The Ninjaz Compiler is a custom miniature compiler and interpreter designed for a simple statically-typed language. It performs full compilation phases including lexical analysis (tokenization), syntax analysis (parsing into an Abstract Syntax Tree), semantic analysis (type checking and declaration-before-use validation), and execution (interpreting the syntax tree). It comes with a CLI as well as a GUI environment (Ninjaz IDE).
 
 ## Contributors
 - Rayan Chuayap
@@ -48,15 +48,48 @@ python -m PyInstaller --noconfirm NinjazCompilerIDE.spec
 
 ## Language Syntax Rules
 - Every statement must end with a semicolon `;`.
-- Variables must be declared using `var <name>;` before use.
-- Use `input <name>;` to receive integer input.
-- Use `output <name>;` to print results.
+- Integer variables must be declared using `var <name>;` before use.
+- String variables must be declared using `string <name>;` before use.
+- Use `input <name>;` to read a value into a variable.
+- Use `output <expr>;` to print a value.
 - Arithmetic expressions support `+`, `-`, `*`, `/`, and parentheses `()`.
+- String concatenation uses `+` between two `string` values.
+- Types are **statically checked** — mixing `int` and `string` in an expression is a compile-time error.
 
-### Example
+### Type Conversion
+Use the built-in cast functions to explicitly convert between types:
+
+| Function | Converts | Example |
+|----------|----------|---------|
+| `str2int(expr)` | string → integer | `str2int("42")` → `42` |
+| `int2str(expr)` | integer → string | `int2str(42)` → `"42"` |
+
+> **Note:** `str2int(expr)` raises a runtime error if the string cannot be parsed as a valid integer (e.g. `str2int("hello")`).
+
+### Examples
+
+**Integer arithmetic:**
 ```min
 var x;
 input x;
 x = 3 + 4 * (2 - 1);
 output x;
+```
+
+**String concatenation:**
+```min
+string first;
+string last;
+input first;
+input last;
+output first + " " + last;
+```
+
+**Type conversion — combining an integer with a string:**
+```min
+var score;
+string label;
+label = "Score: ";
+input score;
+output label + int2str(score);
 ```

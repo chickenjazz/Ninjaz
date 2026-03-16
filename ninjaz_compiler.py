@@ -71,7 +71,8 @@ class Token:
         return f"{self.type:<10} {self.value!r} @ line {self.line}, col {self.column}"
 
 
-KEYWORDS = {"var": "VAR", "input": "INPUT", "output": "OUTPUT", "string": "STRING_TYPE"}
+KEYWORDS = {"var": "VAR", "input": "INPUT", "output": "OUTPUT", "string": "STRING_TYPE",
+            "str2int": "INT_CAST", "int2str": "STR_CAST"}
 SINGLE_CHAR_TOKENS = {
     ';': 'SEMICOLON',
     '+': 'PLUS',
@@ -301,6 +302,12 @@ class StringLit(ASTNode):
     value: str
 
 
+@dataclass
+class TypeCast(ASTNode):
+    target_type: str   # 'int' or 'str'
+    expr: ASTNode
+
+
 # =========================
 # Parser
 # =========================
@@ -410,6 +417,13 @@ class Parser:
             return Var(self.eat('IDENTIFIER').value)
         if token.type == 'STRING_LITERAL':
             return StringLit(self.eat('STRING_LITERAL').value)
+        if token.type in ('INT_CAST', 'STR_CAST'):
+            target = 'int' if token.type == 'INT_CAST' else 'str'
+            self.eat(token.type)
+            self.eat('LPAREN')
+            expr = self.expr()
+            self.eat('RPAREN')
+            return TypeCast(target, expr)
         if token.type == 'LPAREN':
             self.eat('LPAREN')
             node = self.expr()
@@ -500,6 +514,11 @@ class SemanticAnalyzer:
 
     def visit_Var(self, node: Var) -> str:
         return self.ensure_declared(node.name)
+
+    def visit_TypeCast(self, node: TypeCast) -> str:
+        # The inner expression can be any type — cast always succeeds at the type level.
+        self.analyze(node.expr)
+        return node.target_type
 
     def ensure_declared(self, name: str) -> str:
         if name not in self.symbols:
@@ -597,6 +616,18 @@ class Interpreter:
     def visit_StringLit(self, node: StringLit) -> str:
         return node.value
 
+    def visit_TypeCast(self, node: TypeCast) -> Union[int, str]:
+        value = self.execute(node.expr)
+        if node.target_type == 'int':
+            try:
+                return int(value)
+            except (ValueError, TypeError) as exc:
+                raise RuntimeLangError(
+                    f"Cannot convert {value!r} to int."
+                ) from exc
+        else:  # 'str'
+            return str(value)
+
     def visit_Var(self, node: Var) -> Union[int, str]:
         if node.name not in self.memory:
             raise RuntimeLangError(f"Variable '{node.name}' has no runtime value.")
@@ -637,6 +668,9 @@ def ast_to_lines(node: ASTNode, indent: str = "") -> List[str]:
         lines.append(f"{indent}Num({node.value})")
     elif isinstance(node, StringLit):
         lines.append(f"{indent}StringLit({node.value!r})")
+    elif isinstance(node, TypeCast):
+        lines.append(f"{indent}TypeCast(-> {node.target_type})")
+        lines.extend(ast_to_lines(node.expr, indent + "  "))
     elif isinstance(node, Var):
         lines.append(f"{indent}Var({node.name})")
     else:
