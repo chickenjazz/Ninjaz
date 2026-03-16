@@ -428,12 +428,13 @@ class SemanticAnalyzer:
     def __init__(self):
         self.symbols: Dict[str, str] = {}
 
-    def analyze(self, node: ASTNode) -> None:
+    def analyze(self, node: ASTNode) -> str:
+        """Recursively analyze a node and return its resolved type ('int' or 'str')."""
         method_name = f"visit_{type(node).__name__}"
         method = getattr(self, method_name, self.generic_visit)
-        method(node)
+        return method(node)
 
-    def generic_visit(self, node: ASTNode) -> None:
+    def generic_visit(self, node: ASTNode) -> str:
         raise SemanticError(f"No semantic visitor for {type(node).__name__}.")
 
     def visit_Program(self, node: Program) -> None:
@@ -457,28 +458,51 @@ class SemanticAnalyzer:
         self.analyze(node.expr)
 
     def visit_AssignStmt(self, node: AssignStmt) -> None:
-        self.ensure_declared(node.name)
-        self.analyze(node.expr)
+        var_type = self.ensure_declared(node.name)
+        expr_type = self.analyze(node.expr)
+        if expr_type != var_type:
+            raise SemanticError(
+                f"Type mismatch: cannot assign a '{expr_type}' expression "
+                f"to variable '{node.name}' which was declared as '{var_type}'."
+            )
 
-    def visit_BinOp(self, node: BinOp) -> None:
-        self.analyze(node.left)
-        self.analyze(node.right)
+    def visit_BinOp(self, node: BinOp) -> str:
+        left_type  = self.analyze(node.left)
+        right_type = self.analyze(node.right)
+        if node.op == '+':
+            # '+' supports int+int (addition) and any mix with str (concatenation)
+            if left_type == 'str' or right_type == 'str':
+                return 'str'
+            return 'int'
+        else:
+            # -, *, / only valid for integers
+            if left_type == 'str' or right_type == 'str':
+                raise SemanticError(
+                    f"Operator '{node.op}' is not supported for string values."
+                )
+            return 'int'
 
-    def visit_UnaryOp(self, node: UnaryOp) -> None:
-        self.analyze(node.expr)
+    def visit_UnaryOp(self, node: UnaryOp) -> str:
+        expr_type = self.analyze(node.expr)
+        if expr_type == 'str':
+            raise SemanticError(
+                f"Unary operator '{node.op}' is not supported for string values."
+            )
+        return 'int'
 
-    def visit_Num(self, node: Num) -> None:
-        return
+    def visit_Num(self, node: Num) -> str:
+        return 'int'
 
-    def visit_StringLit(self, node: StringLit) -> None:
-        return
+    def visit_StringLit(self, node: StringLit) -> str:
+        return 'str'
 
-    def visit_Var(self, node: Var) -> None:
-        self.ensure_declared(node.name)
+    def visit_Var(self, node: Var) -> str:
+        return self.ensure_declared(node.name)
 
-    def ensure_declared(self, name: str) -> None:
+    def ensure_declared(self, name: str) -> str:
         if name not in self.symbols:
             raise SemanticError(f"Variable '{name}' used before declaration.")
+        return self.symbols[name]
 
 
 # =========================
@@ -487,8 +511,8 @@ class SemanticAnalyzer:
 
 class Interpreter:
     def __init__(self, input_provider=None):
-        self.memory: Dict[str, int] = {}
-        self.outputs: List[int] = []
+        self.memory: Dict[str, Union[int, str]] = {}
+        self.outputs: List[Union[int, str]] = []
         self.input_provider = input_provider or input
 
     def execute(self, node: ASTNode) -> Optional[int]:
@@ -554,6 +578,10 @@ class Interpreter:
 
     def visit_UnaryOp(self, node: UnaryOp) -> int:
         value = self.execute(node.expr)
+        if isinstance(value, str):
+            raise RuntimeLangError(
+                f"Unary operator '{node.op}' is not supported for string values."
+            )
         return value if node.op == '+' else -value
 
     def visit_Num(self, node: Num) -> int:

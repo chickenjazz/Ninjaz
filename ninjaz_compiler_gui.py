@@ -313,7 +313,7 @@ class App(tk.Tk):
             # ── 3. Semantic analysis ──────────────────────────────────────────
             sem = SemanticAnalyzer()
             sem.analyze(ast)
-            self._show_semantic(sem.symbols, error=None)
+            self._show_semantic(sem.symbols)
 
             if check_only:
                 self._set_status(
@@ -333,7 +333,9 @@ class App(tk.Tk):
             self._show_error(kind, str(exc))
 
         except Exception as exc:
-            self._set_status(f"💥  Unexpected error: {exc}", FG_RED)
+            import traceback
+            self._set_status(f"💥  Unexpected internal error: {exc}", FG_RED)
+            self._show_error("Unexpected Python Error", traceback.format_exc())
 
     # ── Display helpers ────────────────────────────────────────────────────────
     def _show_tokens(self, tokens):
@@ -356,14 +358,11 @@ class App(tk.Tk):
             line = f"{tok.type:<12}{tok.value!r:<10} @ line {tok.line}, col {tok.column}\n"
             self._write("Tokens", line, tag)
 
-    def _show_semantic(self, symbols, error):
-        if error:
-            self._write("Semantic", f"❌ Semantic Error\n\n{error}\n", "err")
-        else:
-            self._write("Semantic", "✅ No semantic errors found.\n\n", "ok")
-            declared = ", ".join(symbols) if symbols else "(none)"
-            self._write("Semantic", f"Declared variables:  ", None)
-            self._write("Semantic", declared + "\n", "var")
+    def _show_semantic(self, symbols):
+        self._write("Semantic", "✅ No semantic errors found.\n\n", "ok")
+        declared = ", ".join(symbols) if symbols else "(none)"
+        self._write("Semantic", "Declared variables:  ", None)
+        self._write("Semantic", declared + "\n", "var")
 
     def _show_output(self, outputs, memory):
         self._write("Output", "═══ PROGRAM OUTPUT ═══\n\n", "hdr")
@@ -381,8 +380,24 @@ class App(tk.Tk):
 
     def _show_error(self, kind, msg):
         err_text = f"❌ {kind}\n\n{msg}\n"
-        # Write the error message into whichever tabs are still blank
+        # Route error to the most relevant tab based on its kind, then fill any remaining blank tabs.
+        ERROR_TAB = {
+            "LexicalError":          "Tokens",
+            "ParseError":            "Syntax Tree",
+            "SemanticError":         "Semantic",
+            "RuntimeLangError":      "Output",
+            "Unexpected Python Error": "Output",
+        }
+        primary = ERROR_TAB.get(kind)
+        if primary:
+            t = self._tabs[primary]
+            t.configure(state="normal")
+            t.insert("end", err_text)
+            t.configure(state="disabled")
+        # Fill any remaining blank tabs with the same message so nothing looks empty
         for name in ("Tokens", "Syntax Tree", "Semantic", "Output"):
+            if name == primary:
+                continue
             t = self._tabs[name]
             if not t.get("1.0", "end").strip():
                 t.configure(state="normal")
@@ -391,8 +406,11 @@ class App(tk.Tk):
 
     def _ask_input(self, prompt: str) -> str:
         """Input provider for the Interpreter — shows a modal dialog."""
+        from ninjaz_compiler import RuntimeLangError
         val = simpledialog.askstring("Program Input", prompt, parent=self)
-        return val if val is not None else "0"
+        if val is None:
+            raise RuntimeLangError("Program input was cancelled by the user.")
+        return val
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────
