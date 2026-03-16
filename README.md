@@ -12,6 +12,8 @@ The Ninjaz Compiler is a custom miniature compiler and interpreter designed for 
 ## Files
 - `ninjaz_compiler.py`          -> Actual compiler backend and CLI
 - `ninjaz_compiler_gui.py`      -> Ninjaz IDE front-end graphical interface
+- `NinjazCompilerIDE.spec`      -> PyInstaller specification file to rebuild the standalone executable
+- `dist/NinjazCompilerIDE.exe`  -> Standalone executable of the Ninjaz IDE and Compiler
 - `sample_valid.min`            -> Sample valid input program
 - `sample_invalid.min`          -> Sample invalid input program
 
@@ -28,6 +30,15 @@ The Ninjaz Compiler is a custom miniature compiler and interpreter designed for 
 - **REPL (Read-Eval-Print Loop)**: `python ninjaz_compiler.py --repl`
 - **Syntax & Semantic Check Only**: `python ninjaz_compiler.py sample_valid.min --check-only`
 - **Launch GUI (Ninjaz IDE)**: `python ninjaz_compiler_gui.py`
+
+### Running the Standalone Executable
+For users without Python installed, you can simply double-click or run the bundled executable located at `dist/NinjazCompilerIDE.exe`. This launches the full graphical IDE directly and doesn't require any python dependencies.
+
+### Rebuilding the Executable
+If you modify the source code and want to rebuild the `.exe`, you can use the included PyInstaller specification file. With PyInstaller installed, run:
+```bash
+python -m PyInstaller --noconfirm NinjazCompilerIDE.spec
+```
 
 ## Features & Implementation Phases
 - **Lexical Analysis**: Tokenizes the raw source code.
