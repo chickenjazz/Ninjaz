@@ -327,7 +327,7 @@ class App(tk.Tk):
             self._set_status(
                 "✅  Compilation and execution successful.", FG_GREEN)
 
-        except MiniLangError as exc:
+        except NinjazError as exc:
             kind = type(exc).__name__
             self._set_status(f"❌  {kind}: {exc}", FG_RED)
             self._show_error(kind, str(exc))
