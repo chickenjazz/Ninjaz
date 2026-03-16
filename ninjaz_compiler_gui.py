@@ -27,6 +27,7 @@ FG_RED     = "#f38ba8"
 FG_YELLOW  = "#f9e2af"
 FG_BLUE    = "#89b4fa"
 FG_PURPLE  = "#cba6f7"
+FG_ORANGE  = "#fab387"
 ACCENT     = "#6366f1"
 
 MONO = ("Consolas", 11)
@@ -245,7 +246,7 @@ class App(tk.Tk):
         tok = self._tabs["Tokens"]
         tok.tag_configure("kw",  foreground=FG_PURPLE)
         tok.tag_configure("num", foreground=FG_YELLOW)
-        tok.tag_configure("str", foreground="#fab387")   # orange for string literals
+        tok.tag_configure("str", foreground=FG_ORANGE)   # orange for string literals
         tok.tag_configure("id",  foreground=FG_BLUE)
         tok.tag_configure("op",  foreground=FG_GREEN)
         tok.tag_configure("eof", foreground=FG_DIM)
